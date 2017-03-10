@@ -52,7 +52,7 @@ public class Session implements Serializable{
   {
     return ip;
   }
-  
+
   public List<ApacheAccessLog> getLogList()
   {
     return logList;
@@ -73,27 +73,61 @@ public class Session implements Serializable{
     ip = ipString;
   }
 
-  public Session add(Session s)
+  //  public Session add(Session s)
+  //  {
+  //    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
+  //    DateTime new_start_time = formatter.parseDateTime(s.getStartTime()); 
+  //    DateTime new_end_time = formatter.parseDateTime(s.getEndTime());
+  //    List<ApacheAccessLog> new_logList = new ArrayList<ApacheAccessLog>();
+  //    
+  //    if(new_start_time.isAfter(formatter.parseDateTime(this.getStartTime())))
+  //    {
+  //      new_start_time = formatter.parseDateTime(this.getStartTime());
+  //    }
+  //    
+  //    if(new_end_time.isBefore(formatter.parseDateTime(this.getEndTime())))
+  //    {
+  //      new_end_time = formatter.parseDateTime(this.getEndTime());
+  //    }
+  //    
+  //    new_logList.addAll(s.getLogList());
+  //    new_logList.addAll(this.getLogList());
+  //    
+  //    return new Session(new_start_time.toString(formatter), new_end_time.toString(formatter), this.getIpAddress(), new_logList);
+  //  }
+
+  public static Session add(Session s1, Session s2)
   {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
-    DateTime new_start_time = formatter.parseDateTime(s.getStartTime()); 
-    DateTime new_end_time = formatter.parseDateTime(s.getEndTime());
-    List<ApacheAccessLog> new_logList = new ArrayList<ApacheAccessLog>();
-    
-    if(new_start_time.isAfter(formatter.parseDateTime(this.getStartTime())))
+    if(s1 == null && s2!=null)
     {
-      new_start_time = formatter.parseDateTime(this.getStartTime());
+      return s2;
+    }else if (s1 !=null && s2==null)
+    {
+      return s1;
+    }else if (s1 !=null && s2!=null)
+    {
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
+      DateTime new_start_time = formatter.parseDateTime(s1.getStartTime()); 
+      DateTime new_end_time = formatter.parseDateTime(s1.getEndTime());
+      List<ApacheAccessLog> new_logList = new ArrayList<ApacheAccessLog>();
+
+      if(new_start_time.isAfter(formatter.parseDateTime(s2.getStartTime())))
+      {
+        new_start_time = formatter.parseDateTime(s2.getStartTime());
+      }
+
+      if(new_end_time.isBefore(formatter.parseDateTime(s2.getEndTime())))
+      {
+        new_end_time = formatter.parseDateTime(s2.getEndTime());
+      }
+
+      new_logList.addAll(s1.getLogList());
+      new_logList.addAll(s2.getLogList());
+
+      return new Session(new_start_time.toString(formatter), new_end_time.toString(formatter), s2.getIpAddress(), new_logList);
     }
     
-    if(new_end_time.isBefore(formatter.parseDateTime(this.getEndTime())))
-    {
-      new_end_time = formatter.parseDateTime(this.getEndTime());
-    }
-    
-    new_logList.addAll(s.getLogList());
-    new_logList.addAll(this.getLogList());
-    
-    return new Session(new_start_time.toString(formatter), new_end_time.toString(formatter), this.getIpAddress(), new_logList);
+    return null;
   }
 
 }

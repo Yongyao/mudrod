@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaDStream;
@@ -19,11 +20,22 @@ import scala.Tuple2;
 public class LogStreaming {
   private static final Function2<Long, Long, Long> SUM_REDUCER = (a, b) -> a + b;
   
-  private static final Function2<Session, Session, Session> Session_Merger = 
-      new Function2<Session, Session, Session>() {
-    @Override public Session call(Session s1, Session s2) {
-      return s1.add(s2);
+//  private static final Function2<Session, Session, Session> Session_Merger = 
+//      new Function2<Session, Session, Session>() {
+//    @Override public Session call(Session s1, Session s2) {
+//      return s1.add(s2);
+//    }
+//  };
+  
+  private static final Function2<Session, Session, Session> Session_Merger = (s1, s2) -> Session.add(s1, s2);
+  
+  private static final Function2<List<Session>, Optional<Session>, Optional<Session>>
+  COMPUTE_RUNNING_SESSION = (currents, old) -> {   
+    Session s = old.orNull();
+    for (Session i : currents) {
+      s = Session.add(s, i);
     }
+    return Optional.of(s);
   };
   
   public static void main(String[] args) throws InterruptedException {
@@ -61,7 +73,8 @@ public class LogStreaming {
     // A DStream of ipAddresses accessed > 10 times.
     JavaPairDStream<String, Session> ipDStream = accessLogDStream
         .mapToPair(s -> new Tuple2<>(s.getIpAddress(), new Session(s)))
-        .reduceByKey(Session_Merger);
+        .reduceByKey(Session_Merger)
+        .updateStateByKey(COMPUTE_RUNNING_SESSION);
     
     ipDStream.foreachRDD(rdd -> {
       List<Tuple2<String, Session>> sessions = rdd.take(100);
