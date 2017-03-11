@@ -10,17 +10,11 @@ import org.joda.time.format.DateTimeFormatter;
 
 
 public class Session implements Serializable{
-
-  public Session() {
-    // TODO Auto-generated constructor stub
-  }
-
+  
   private String start_time;
   private String end_time;
   private String ip;
   private List<ApacheAccessLog> logList = new ArrayList<ApacheAccessLog>();
-
-  //private DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
 
   public Session(ApacheAccessLog log)
   {
@@ -48,6 +42,20 @@ public class Session implements Serializable{
     return end_time;
   }
 
+  public DateTime getStartTimeObj()
+  {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
+    DateTime start_time_obj = formatter.parseDateTime(this.start_time); 
+    return start_time_obj;
+  }
+
+  public DateTime getEndTimeObj()
+  {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
+    DateTime end_time_obj = formatter.parseDateTime(this.end_time); 
+    return end_time_obj;
+  }
+  
   public String getIpAddress()
   {
     return ip;
@@ -107,18 +115,18 @@ public class Session implements Serializable{
     }else if (s1 !=null && s2!=null)
     {
       DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MMM/yyyy:HH:mm:ss Z");
-      DateTime new_start_time = formatter.parseDateTime(s1.getStartTime()); 
-      DateTime new_end_time = formatter.parseDateTime(s1.getEndTime());
+      DateTime new_start_time = s1.getStartTimeObj(); 
+      DateTime new_end_time = s1.getEndTimeObj();
       List<ApacheAccessLog> new_logList = new ArrayList<ApacheAccessLog>();
 
-      if(new_start_time.isAfter(formatter.parseDateTime(s2.getStartTime())))
+      if(new_start_time.isAfter(s2.getStartTimeObj()))
       {
-        new_start_time = formatter.parseDateTime(s2.getStartTime());
+        new_start_time = s2.getStartTimeObj();
       }
 
-      if(new_end_time.isBefore(formatter.parseDateTime(s2.getEndTime())))
+      if(new_end_time.isBefore(s2.getEndTimeObj()))
       {
-        new_end_time = formatter.parseDateTime(s2.getEndTime());
+        new_end_time = s2.getEndTimeObj();
       }
 
       new_logList.addAll(s1.getLogList());

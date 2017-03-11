@@ -17,25 +17,32 @@ public class ApacheAccessLog implements Serializable {
   private String clientIdentd;
   private String userID;
   private String dateTimeString;
-  private String method;
-  private String endpoint;
-  private String protocol;
+  private String request;
   private int responseCode;
   private long contentSize;
+  
+  private String referrer;
+  private String agent;
+  
+  private final static String[] crawlerList = {"crawler", "bot", "slurp", "perl", "java", "httpclient", "curl"};
+  private final static String[] searchRequestList = {"datasetlist", "dataset"};
 
   private ApacheAccessLog(String ipAddress, String clientIdentd, String userID,
-                          String dateTime, String method, String endpoint,
-                          String protocol, String responseCode,
-                          String contentSize) {
+                          String dateTime, String request, String responseCode,
+                          String contentSize, String referrer, String agent) {
     this.ipAddress = ipAddress;
     this.clientIdentd = clientIdentd;
     this.userID = userID;
     this.dateTimeString = dateTime;
-    this.method = method;
-    this.endpoint = endpoint;
-    this.protocol = protocol;
+    this.request = request;
     this.responseCode = Integer.parseInt(responseCode);
+    
+    if(contentSize.equals("-"))
+      contentSize = "0";
     this.contentSize = Long.parseLong(contentSize);
+    
+    this.referrer = referrer;
+    this.agent = agent;
   }
 
   public String getIpAddress() {
@@ -54,16 +61,8 @@ public class ApacheAccessLog implements Serializable {
     return dateTimeString;
   }
 
-  public String getMethod() {
-    return method;
-  }
-
-  public String getEndpoint() {
-    return endpoint;
-  }
-
-  public String getProtocol() {
-    return protocol;
+  public String getRequest() {
+    return request;
   }
 
   public int getResponseCode() {
@@ -90,16 +89,8 @@ public class ApacheAccessLog implements Serializable {
     this.dateTimeString = dateTimeString;
   }
 
-  public void setMethod(String method) {
-    this.method = method;
-  }
-
-  public void setEndpoint(String endpoint) {
-    this.endpoint = endpoint;
-  }
-
-  public void setProtocol(String protocol) {
-    this.protocol = protocol;
+  public void setRequest(String request) {
+    this.request = request;
   }
 
   public void setResponseCode(int responseCode) {
@@ -109,23 +100,36 @@ public class ApacheAccessLog implements Serializable {
   public void setContentSize(long contentSize) {
     this.contentSize = contentSize;
   }
-  
+
   public boolean isCrawler()
   {
-    if(method.toLowerCase().trim().contains("post"))
+    for(String c:crawlerList)
     {
-      return true;
-    }else
-    {
-      return false;
+      if(agent.toLowerCase().trim().contains(c)||agent.equals("-"))
+      {
+        return true;
+      }
     }
+    return false;
+  }
+  
+  public boolean isSearchLog()
+  {
+    for(String s:searchRequestList)
+    {
+      if(request.toLowerCase().trim().contains(s))
+      {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Example Apache log line:
   //   127.0.0.1 - - [21/Jul/2014:9:55:27 -0800] "GET /home.html HTTP/1.1" 200 2048
   private static final String LOG_ENTRY_PATTERN =
-      // 1:IP  2:client 3:user 4:date time                   5:method 6:req 7:proto   8:respcode 9:size
-      "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
+      // 1:IP  2:client 3:user 4:date time                   5:request   6:respcode 7:size 8:referrer 9:agent
+      "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
   private static final Pattern PATTERN = Pattern.compile(LOG_ENTRY_PATTERN);
 
   public static ApacheAccessLog parseFromLogLine(String logline) {
@@ -140,8 +144,7 @@ public class ApacheAccessLog implements Serializable {
   }
 
   @Override public String toString() {
-    return String.format("%s %s %s [%s] \"%s %s %s\" %s %s",
-        ipAddress, clientIdentd, userID, dateTimeString, method, endpoint,
-        protocol, responseCode, contentSize);
+    return String.format("%s %s %s [%s] \"%s %s %s\" %s %s \"%s\" \"%s\"",
+        ipAddress, clientIdentd, userID, dateTimeString, request, responseCode, contentSize, referrer, agent);
   }
 }
