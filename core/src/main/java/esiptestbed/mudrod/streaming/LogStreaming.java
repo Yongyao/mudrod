@@ -32,15 +32,16 @@ public class LogStreaming {
   private static final Function2<List<Session>, Optional<Session>, Optional<Session>> COMPUTE_RUNNING_SESSION = 
       (news, current) -> {   
         Session s = current.orNull();
-        DateTime now = DateTime.now();
+        DateTime now = DateTime.now(); //change the value of now to test
         if(s!=null)
         {
-          System.out.println(now.toString());
-          System.out.println(s.getEndTimeObj().toString());
+//          System.out.println(now.toString());
+//          System.out.println(s.getEndTimeObj().toString());
           int interval = Seconds.secondsBetween(s.getEndTimeObj(), now).getSeconds();
           System.out.println(interval);
           if(interval > interval_timeout)
           {
+            //SessionProcesser.process(s);
             if(news.size()>0)
             {
               for (Session i : news) 
@@ -82,6 +83,7 @@ public class LogStreaming {
         jssc.socketTextStream("localhost", 9999);
 
     // A DStream of Apache Access Logs.
+    //http://stackoverflow.com/questions/36421619/whats-the-meaning-of-dstream-foreachrdd-function/42771764#42771764
     JavaDStream<ApacheAccessLog> accessLogDStream =
         logDataDStream.map(ApacheAccessLog::parseFromLogLine)
         .filter(log->log.isSearchLog()==true)
