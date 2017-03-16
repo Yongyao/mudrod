@@ -11,14 +11,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$(document).ready(function() {
-	$("#query").keyup(function(event){
-		if(event.keyCode == 13){
-			$("#searchButton").click();
-		}
-	});
+$(document).ready(function () {
+	var bestPictures = new Bloodhound({
+  	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+  	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  	  remote: {
+  	    url: 'services/autocomplete/query?term=%QUERY',
+  	    wildcard: '%QUERY'
+  	  }
+  	});
 
-	$("#searchButton").click(function() {
-		$("#searchForm").submit();
-	});
+  	$('#query').typeahead(null, {
+  	  display: 'value',
+  	  source: bestPictures
+  	});
+	  	
+    $("#query").keyup(function (event) {
+        if (event.keyCode == 13) {
+            $("#searchButton").click();
+        }
+    });
+
+    $("#searchButton").click(function () {
+        $("#searchForm").submit();
+    });
 });

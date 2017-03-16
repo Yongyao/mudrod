@@ -42,6 +42,20 @@ $(document).ready(function () {
     $("#ontologyUL").on("click", "li a", function () {
         redirect("search", "query", $(this).data("word"), "searchOption", $("input[name='searchOption']:checked").val());
     });
+    
+    var bestPictures = new Bloodhound({
+  	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+  	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  	  remote: {
+  	    url: 'services/autocomplete/query?term=%QUERY',
+  	    wildcard: '%QUERY'
+  	  }
+  	});
+
+  	$('#query').typeahead(null, {
+  	  display: 'value',
+  	  source: bestPictures
+  	});
 });
 
 function search(query) {
@@ -135,7 +149,7 @@ function search(query) {
 
 function FileNameFormatter(value) {
     /*var url = "http://podaac.jpl.nasa.gov/dataset/"
-        + encodeURIComponent(value);*/
+     + encodeURIComponent(value);*/
     url = "./dataset.html?query=" + g_currentQuery + "&searchOption=" + g_currentSearchOption + "&shortname=" + value;
     return '<a class="fileShortName" href=' + url + '>' + value + '</a>';
 }
@@ -157,18 +171,23 @@ function createResultTable() {
         }, {
             'title': 'Long Name',
             'field': 'Long Name',
+        } ,{
+        	'title': 'Topic',
+	        'field': 'Topic',
+	        'formatter': TopicFormatter,
+        },{
+            'title': 'Platform/Sensors',
+            'field': 'Sensor',
         }, {
-            'title': 'Topic',
-            'field': 'Topic',
-            'formatter': TopicFormatter,
+            'title': 'Processing Level',
+            'field': 'Processing Level',
         }, {
-            'title': 'Release Date',
-            'field': 'Release Date',
+            'title': 'Start/End Date',
+            'field': 'Start/End Date',
         }, {
-            'title': 'Abstract',
-            'field': 'Abstract',
+            'title': 'Description',
+            'field': 'Description',
         }]
-
     };
 
     $('#ResultsTable').bootstrapTable(layout);
