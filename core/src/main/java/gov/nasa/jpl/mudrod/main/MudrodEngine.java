@@ -243,11 +243,6 @@ public class MudrodEngine {
   public void startMetaIngest() {
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
-    md.process();
-
-    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
-    recom.preprocess();
-    recom.process();
     LOG.info("Metadata has been ingested successfully.");
   }
 

@@ -56,7 +56,6 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     //remove old metadata from ES
     es.deleteType(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_TYPE));
     //harvest new metadata using PO.DAAC web services
-    harvestMetadatafromWeb();
     es.createBulkProcessor();
     addMetadataMapping();
     importToES();
