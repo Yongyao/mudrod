@@ -89,8 +89,8 @@ public class Dispatcher extends MudrodAbstract {
    * @return a multiMatch query builder
    */
   public BoolQueryBuilder createSemQuery(String input, double T, String query_operator) {
-    Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
-    selected_Map.put(input, (double) 1);
+//    Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
+//    selected_Map.put(input, (double) 1);
 
 //    String fieldsList[] = { "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", 
 //        "DatasetParameter-Topic", "DatasetParameter-VariableDetail", "DatasetParameter-Category",

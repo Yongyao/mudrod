@@ -27,6 +27,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -124,12 +125,12 @@ public class Searcher extends MudrodAbstract implements Serializable {
 
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
-      Double relevance = Double.valueOf(NDForm.format(hit.getScore()));
-      String shortName = (String) result.get("global_attributes");
+      //Map<String, SearchHitField> fields = hit.getFields();
+      //String shortName = (String) fields.get("global_attributes").value();
+      String shortName = (String) ((Map<String, Object>) result.get("global_attributes")).get("Model");
+      //String shortName = global_attributes.get("Model").getAsString();
 
       SResult re = new SResult(shortName, "", "", "", "");
-
-
 
       resultList.add(re);
     }
@@ -158,16 +159,16 @@ public class Searcher extends MudrodAbstract implements Serializable {
     for (int i = 0; i < li.size(); i++) {
       JsonObject file = new JsonObject();
       file.addProperty("Short Name", (String) SResult.get(li.get(i), "shortName"));
-      file.addProperty("Long Name", (String) SResult.get(li.get(i), "longName"));
-      file.addProperty("Topic", (String) SResult.get(li.get(i), "topic"));
-      file.addProperty("Description", (String) SResult.get(li.get(i), "description"));
-      file.addProperty("Release Date", (String) SResult.get(li.get(i), "relase_date"));
-      fileList.add(file);
-
-      file.addProperty("Start/End Date", (String) SResult.get(li.get(i), "startDate") + " - " + (String) SResult.get(li.get(i), "endDate"));
-      file.addProperty("Processing Level", (String) SResult.get(li.get(i), "processingLevel"));
-
-      file.addProperty("Sensor", (String) SResult.get(li.get(i), "sensors"));
+//      file.addProperty("Long Name", (String) SResult.get(li.get(i), "longName"));
+//      file.addProperty("Topic", (String) SResult.get(li.get(i), "topic"));
+//      file.addProperty("Description", (String) SResult.get(li.get(i), "description"));
+//      file.addProperty("Release Date", (String) SResult.get(li.get(i), "relase_date"));
+//      fileList.add(file);
+//
+//      file.addProperty("Start/End Date", (String) SResult.get(li.get(i), "startDate") + " - " + (String) SResult.get(li.get(i), "endDate"));
+//      file.addProperty("Processing Level", (String) SResult.get(li.get(i), "processingLevel"));
+//
+//      file.addProperty("Sensor", (String) SResult.get(li.get(i), "sensors"));
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
 
