@@ -17,7 +17,7 @@ import org.joda.time.Seconds;
 import scala.Tuple2;
 
 public class LogStreaming {
-  private static final int interval_timeout = 30;
+  private static final int interval_timeout = Integer.MAX_VALUE;
   private static final Function2<Long, Long, Long> SUM_REDUCER = (a, b) -> a + b;
 
   //  private static final Function2<Session, Session, Session> Session_Merger = 
@@ -38,7 +38,7 @@ public class LogStreaming {
 //          System.out.println(now.toString());
 //          System.out.println(s.getEndTimeObj().toString());
           int interval = Seconds.secondsBetween(s.getEndTimeObj(), now).getSeconds();
-          System.out.println(interval);
+          //System.out.println(interval);
           if(interval > interval_timeout)
           {
             //SessionProcesser.process(s);
@@ -89,12 +89,12 @@ public class LogStreaming {
         .filter(log->log.isSearchLog()==true)
         .filter(log->log.isCrawler()==false);
 
-    JavaPairDStream<Integer, Long> responseCodeCountDStream = accessLogDStream
-        .mapToPair(s -> new Tuple2<>(s.getResponseCode(), 1L))
-        .reduceByKey(SUM_REDUCER);
-    responseCodeCountDStream.foreachRDD(rdd -> {
-      System.out.println("Response code counts: " + rdd.take(100));
-    });
+//    JavaPairDStream<Integer, Long> responseCodeCountDStream = accessLogDStream
+//        .mapToPair(s -> new Tuple2<>(s.getResponseCode(), 1L))
+//        .reduceByKey(SUM_REDUCER);
+//    responseCodeCountDStream.foreachRDD(rdd -> {
+//      System.out.println("Response code counts: " + rdd.take(100));
+//    });
 
     // A DStream of sessions with ip being the key
     JavaPairDStream<String, Session> ipDStream = accessLogDStream
@@ -115,4 +115,7 @@ public class LogStreaming {
     jssc.awaitTermination();   // Wait for the computation to terminate
   }
 }
+/*notes: 1. pass -Dspark.master=local[*] to vm arguments 2. the interval_timeout needs to be changed in production
+ * 3. currently, it seems to only support terminal monitoring*/
+
 
